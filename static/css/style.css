@@ -1,0 +1,96 @@
+.container-1
+{
+    border: 1px solid black;
+    width: 75%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.container-1 h2
+{
+    border: 2px solid black;
+    padding: 8px;
+    font-size: 40px;
+    font-weight: bold;
+    margin: 0 auto;
+    /*text-align: center;*/
+}
+
+table, th, td
+{
+    padding: 5px;
+    border: 1px solid black;
+    text-align: center;
+}
+
+th, td
+{
+    width: 45px;
+}
+
+.container-1 h3
+{
+    border: 2px solid black;
+    padding: 8px;
+    font-size: 30px;
+    margin: 0 auto;
+    /*text-align: center;*/
+}
+
+.flex-blackjack-row-1, .flex-blackjack-row-2, .flex-blackjack-row-3
+{
+    display: flex;
+    border: 2px solid black;
+    padding: 10px;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.flex-blackjack-row-2, .flex-blackjack-row-3
+{
+    background: url("../images/background.png");
+    color: #FFFFFF;
+}
+
+.flex-blackjack-row-2 div
+{
+    border: 1px solid black;
+    padding: 10px;
+    flex: 1;
+    height: 350px;
+    text-align: center;
+}
+
+.flex-blackjack-row-2 img
+{
+    width: 25%;
+    padding: 10px;
+}
+
+.flex-blackjack-row-3 div
+{
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.flex-blackjack-row-3 button
+{
+    border: 1px solid black;
+    padding: 10px;
+    width: 70px;
+}
+
+.verText
+{
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    font-size: 9px;
+    text-align:right;
+    vertical-align: bottom;
+    color: black;
+}
+
+
+
