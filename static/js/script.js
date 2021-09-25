@@ -1,16 +1,14 @@
 
 //
-// Blackjack game
+// Blackjack Game
+//
+// Simple version without betting, just win, lose, or tie.
+//
+// Copyright © 2021 Roger Covietz
 //
 
-let blackjackGame =
+let blackjackObj =
 {
-    'player': {'scoreSpan': '#your-blackjack-result', 'div': '#your-box',
-            'cardCnt': 0, 'dealtCards': [], 'score': 0, 'softHand': false},
-
-    'dealer': {'scoreSpan': '#dealer-blackjack-result', 'div': '#dealer-box',
-               'cardCnt': 0, 'dealtCards': [], 'score': 0, 'softHand': false},
-    
     /* See: https://ambitiouswithcards.com/new-deck-order/ */
 
     'playedCards': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,      // Ace - King of Hearts
@@ -29,18 +27,24 @@ let blackjackGame =
     
     'cardMap': {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'j': 10, 'q': 10, 'k': 10, 'a': [1, 11], 'b': 0},
 
+    'player': {'scoreBox': '#players-blackjack-score', 'cardsBox': '#player-box',
+               'cardCnt': 0, 'dealtCards': [], 'score': 0, 'softHand': false},
+
+    'dealer': {'scoreBox': '#dealers-blackjack-score', 'cardsBox': '#dealer-box',
+               'cardCnt': 0, 'dealtCards': [], 'score': 0, 'softHand': false},
+    
     /* tally of games played from the 'PLAYER's (Your) perspective */
     'wins': 0,
     'losses': 0,
     'pushes': 0,
 
-    'isStand': false,
+    'playerDone': false,
     'holeCardUp': false,
     'gameOver': true,
-}
+};
 
-const PLAYER = blackjackGame['player']
-const DEALER = blackjackGame['dealer']
+const PLAYER = blackjackObj.player
+const DEALER = blackjackObj.dealer
 
 const hitSound = new Audio('static/sounds/swish.m4a');
 const winSound = new Audio('static/sounds/cash.mp3');
@@ -58,14 +62,14 @@ function sleep(ms)
 
 function btnDeal()
 {
-    if (blackjackGame['gameOver'] === true)
+    if (blackjackObj.gameOver === true)
     {
-        let yourImages = document.querySelector('#your-box').querySelectorAll('img');
+        let playerImages = document.querySelector('#player-box').querySelectorAll('img');
         let dealerImages = document.querySelector('#dealer-box').querySelectorAll('img');
 
-        for (let i = 0; i < yourImages.length; i++)
+        for (let i = 0; i < playerImages.length; i++)
         {
-            yourImages[i].remove();
+            playerImages[i].remove();
         }
 
         for (let i = 0; i < dealerImages.length; i++)
@@ -73,66 +77,64 @@ function btnDeal()
             dealerImages[i].remove();
         }
 
-        //console.log('Player cards dealt', PLAYER['dealtCards'].length);
-        // for (let i = 0; i < PLAYER['dealtCards'].length; i++)
+        //console.log('Player cards dealt', PLAYER.dealtCards.length);
+        // for (let i = 0; i < PLAYER.dealtCards.length; i++)
         // {
-        //     PLAYER['dealtCards'].shift();
+        //     PLAYER.dealtCards.shift();
         // }
 
-        while (typeof (j = PLAYER['dealtCards'].shift()) !== 'undefined')
+        while (typeof (j = PLAYER.dealtCards.shift()) !== 'undefined')
         {
             ;//console.log(j);
         }
-        //console.log('Player cards dealt', PLAYER['dealtCards'].length);
+        //console.log('Player cards dealt', PLAYER.dealtCards.length);
 
-        //console.log('Dealer cards dealt', DEALER['dealtCards'].length);
-        // for (let i = 0; i < DEALER['dealtCards'].length; i++)
+        //console.log('Dealer cards dealt', DEALER.dealtCards.length);
+        // for (let i = 0; i < DEALER.dealtCards.length; i++)
         // {
-        //     DEALER['dealtCards'].shift();
+        //     DEALER.dealtCards.shift();
         // }
 
-        while (typeof (j = DEALER['dealtCards'].shift()) !== 'undefined')
+        while (typeof (j = DEALER.dealtCards.shift()) !== 'undefined')
         {
             ;//console.log(j);
         }
         //console.log('Dealer cards dealt', DEALER['dealtCards'].length);
 
-        PLAYER['cardCnt'] = 0;
-        DEALER['cardCnt'] = 0;
+        blackjackObj.playedCards.fill(0);
+        
+        PLAYER.cardCnt = 0;
+        DEALER.cardCnt = 0;
 
-        for (let i = 0; i < blackjackGame['playedCards'].length; i++)
-        {
-            blackjackGame['playedCards'][i] = 0;
-        }
-
-        PLAYER['score'] = 0;
-        DEALER['score'] = 0;
+        PLAYER.score = 0;
+        DEALER.score = 0;
 
         showScore(PLAYER);
         showScore(DEALER);
 
-        PLAYER['softHand'] = false;
-        DEALER['softHand'] = false;
+        PLAYER.softHand = false;
+        DEALER.softHand = false;
 
         document.querySelector('#blackjack-result').style.color = 'black';
         document.querySelector('#blackjack-result').style.fontWeight = 'normal';
         document.querySelector('#blackjack-result').textContent = "Let's play";
 
-        blackjackGame['isStand'] = false;
-        blackjackGame['holeCardUp'] = false,
-        blackjackGame['gameOver'] = false;
+        blackjackObj.playerDone = false;
+        blackjackObj.holeCardUp = false,
+        blackjackObj.gameOver = false;
 
         startDeal();
     }
-}
+
+} /* END function btnDeal() */
 
 function btnHit()
 {
-    if (PLAYER['cardCnt'] < 2)
+    if (PLAYER.cardCnt < 2)
     {
         return;
     }
-    else if (blackjackGame['isStand'] === false)
+    else if (blackjackObj.playerDone === false)
     {
         blackjackHit(PLAYER);
     }
@@ -140,16 +142,16 @@ function btnHit()
 
 function btnStand()
 {
-    if (DEALER['cardCnt'] >= 2 && blackjackGame['gameOver'] === false)
+    if (DEALER.cardCnt >= 2 && blackjackObj.gameOver === false)
     {
-        blackjackGame['isStand'] = true;
+        blackjackObj.playerDone = true;
         dealerLogic();
     }
 }
 
 async function startDeal()
 {
-    if (PLAYER['cardCnt'] < 2)
+    if (PLAYER.cardCnt < 2)
     {
         for (let i = 0; i < 2; i++)
         {
@@ -165,13 +167,13 @@ async function startDeal()
 function blackjackHit(activePlayer)
 {
     /* no more 'PLAYER' hits after 'standing' */
-    if (activePlayer === PLAYER && blackjackGame['isStand'] === true)
+    if (activePlayer === PLAYER && blackjackObj.playerDone === true)
     {
         return;
     }
 
     /* get a random (unplayed) card from the deck */
-    let result = randomCard();
+    let result = dealCard();
 
     let suit = result[0];
     let card = result[1];
@@ -196,29 +198,27 @@ function blackjackHit(activePlayer)
 
         /* The dealer deals the cards face down initially,'cb' is for
         ** 'card back'. Dealer cards that are face-down do not add to
-        ** the dealer's score until they are 'flipped'.
+        ** the dealer's score until they are 'flipped-over'.
         */
         suit = 'c';
         card = 'b';
-
     }
 
     if (activePlayer !== DEALER ||
         DEALER.cardCnt < 2 ||
-        blackjackGame['holeCardUp'] === true)
+        blackjackObj.holeCardUp === true)
     {
         showCard(suit, card, activePlayer);
 
-        activePlayer['cardCnt']++;
+        activePlayer.cardCnt++;
 
         updateScore(card, activePlayer);
         showScore(activePlayer);
-    
     }
 
-}
+} /* END function blackjackHit() */
 
-function randomCard()
+function dealCard()
 {
     let cnt = 0;
     let i;
@@ -231,9 +231,9 @@ function randomCard()
         ** keep track of cards already played and only
         ** choose from those that are still in the deck
         */
-        if (blackjackGame['playedCards'][i] === 0)
+        if (blackjackObj.playedCards[i] === 0)
         {
-            blackjackGame['playedCards'][i] = 1;
+            blackjackObj.playedCards[i] = 1;
             break;
         }
 
@@ -250,31 +250,30 @@ function randomCard()
     */
     let card = Math.floor(i % 13);
 
-    if (blackjackGame['suits'][suit] === 'h' ||
-        blackjackGame['suits'][suit] === 'c')
+    if (blackjackObj.suits[suit] === 'h' ||
+        blackjackObj.suits[suit] === 'c')
     {
-        return [blackjackGame['suits'][suit], blackjackGame['cards1'][card]];
+        return [blackjackObj.suits[suit], blackjackObj.cards1[card]];
     }
     else
     {
-        return [blackjackGame['suits'][suit], blackjackGame['cards2'][card]];
+        return [blackjackObj.suits[suit], blackjackObj.cards2[card]];
     }
 
-}
+} /* END function dealCard() */
 
 function showCard(suit, card, activePlayer)
 {
-    if (activePlayer['score'] <= 21)
+    if (activePlayer.score <= 21)
     {
         let cardImage = document.createElement('img');
 
         cardImage.src = `static/images/${suit}${card}.png`;
 
-        document.querySelector(activePlayer['div']).appendChild(cardImage);
+        document.querySelector(activePlayer.cardsBox).appendChild(cardImage);
 
         hitSound.play();
     }
-
 }
 
 function flipCard(suit, card, activePlayer)
@@ -296,53 +295,53 @@ function updateScore(card, activePlayer)
 {
     if (card !== 'a')
     {
-        activePlayer['score'] += blackjackGame['cardMap'][card];
+        activePlayer.score += blackjackObj.cardMap[card];
 
-        if (activePlayer['score'] > 21 && activePlayer['softHand'] == true)
+        if (activePlayer.score > 21 && activePlayer.softHand == true)
         {
-            activePlayer['score'] -= (blackjackGame['cardMap']['a'][1] -
-                                      blackjackGame['cardMap']['a'][0])
+            activePlayer.score -= (blackjackObj.cardMap['a'][1] -
+                                   blackjackObj.cardMap['a'][0])
 
-            activePlayer['softHand'] = false;
+            activePlayer.softHand = false;
         }
     }
 
     else /* (card === 'a') */
     {
-        if (activePlayer['score'] + blackjackGame['cardMap'][card][1] <= 21)
+        if (activePlayer.score + blackjackObj.cardMap[card][1] <= 21)
         {
-            activePlayer['score'] += blackjackGame['cardMap'][card][1];
-            activePlayer['softHand'] = true;
+            activePlayer.score += blackjackObj.cardMap[card][1];
+            activePlayer.softHand = true;
         }
         else
         {
-            activePlayer['score'] += blackjackGame['cardMap'][card][0];
+            activePlayer.score += blackjackObj.cardMap[card][0];
         }
     }
 }
 
 function showScore(activePlayer)
 {
-    if (activePlayer['score'] > 21)
+    if (activePlayer.score > 21)
     {
-        document.querySelector(activePlayer['scoreSpan']).style.color = 'red';
-        document.querySelector(activePlayer['scoreSpan']).textContent = 'BUST!';
+        document.querySelector(activePlayer.scoreBox).style.color = 'red';
+        document.querySelector(activePlayer.scoreBox).textContent = 'BUST!';
     }
     else
     {
-        document.querySelector(activePlayer['scoreSpan']).style.color = '#FFFFFF';
-        document.querySelector(activePlayer['scoreSpan']).textContent = activePlayer['score'];
+        document.querySelector(activePlayer.scoreBox).style.color = '#FFFFFF';
+        document.querySelector(activePlayer.scoreBox).textContent = activePlayer.score;
     }
 
     /*
     ** automatically start the 'DEALER' play-bot if the 'PLAYER'
     ** has a score of 21 (possible blackjack?), or more ('busted')
     */
-    if (blackjackGame['isStand'] === false &&
-        DEALER['cardCnt'] === 2 &&
-        PLAYER['score'] >= 21)
+    if (blackjackObj.playerDone === false &&
+        DEALER.cardCnt === 2 &&
+        PLAYER.score >= 21)
     {
-        blackjackGame['isStand'] = true;
+        blackjackObj.playerDone = true;
         dealerLogic();
     }
 }
@@ -350,93 +349,95 @@ function showScore(activePlayer)
 async function dealerLogic()
 {
     /* flip-over the 'hole card' first, then play out the 'DEALER's hand */
-    let suit = DEALER['dealtCards'][1].slice(0, 1);
-    let card = DEALER['dealtCards'][1].slice(1, 3); /* in case of 10 card need 2-digits */
+    let suit = DEALER.dealtCards[1].slice(0, 1);
+    let card = DEALER.dealtCards[1].slice(1, 3); /* in case of 10 card need 2-digits */
     
     flipCard(suit, card, DEALER);
 
-    blackjackGame['holeCardUp'] = true;
+    blackjackObj.holeCardUp = true;
 
-    while (DEALER['score'] < 17)
+    while (DEALER.score < 17)
     {
         await sleep(1000);
         blackjackHit(DEALER);
     }
 
-    blackjackGame['gameOver'] = true;
+    blackjackObj.gameOver = true;
 
     showResult(computeWinner());
-
 }
 
 /*
-** Compute winner, update the wins, losses, and pushes (ties),
-** and return who just won, if any.
+** Compute winner, update the wins, losses, or pushes (ties)
+** counter, and if not a draw, return who just won.
 */
 function computeWinner()
 {
     let winner;
     
     /* if the 'PLAYER' didn't 'bust' */
-    if (PLAYER['score'] <= 21)
+    if (PLAYER.score <= 21)
     {
-        if (PLAYER['score'] > DEALER['score'] || (DEALER['score'] > 21))
+        if (PLAYER.score > DEALER.score || (DEALER.score > 21))
         {
-            blackjackGame['wins']++;
+            blackjackObj.wins++;
             winner = PLAYER;
         }
-        else if (PLAYER['score'] < DEALER['score'])
+        else if (PLAYER.score < DEALER.score)
         {
-            blackjackGame['losses']++;
+            blackjackObj.losses++;
             winner = DEALER;
         }
-        else if (PLAYER['score'] === DEALER['score'])
+        else if (PLAYER.score === DEALER.score)
         {
             /* when both scores are 21, a natrual blackjack wins over a 21 */
-            if (PLAYER['score'] === 21 && DEALER['score'] === 21)
+            if (PLAYER.score === 21 && DEALER.score === 21)
             {
-                if (PLAYER['cardCnt'] === 2 && DEALER['cardCnt'] > 2)
+                if (PLAYER.cardCnt === 2 && DEALER.cardCnt > 2)
                 {
-                    blackjackGame['wins']++;
+                    blackjackObj.wins++;
                     winner = PLAYER;
                 }
-                else if (DEALER['cardCnt'] === 2 && PLAYER['cardCnt'] > 2)
+                else if (DEALER.cardCnt === 2 && PLAYER.cardCnt
+                     > 2)
                 {
-                    blackjackGame['losses']++;
+                    blackjackObj.losses++;
                     winner = DEALER;
                 }
                 else
                 {
-                    blackjackGame['pushes']++;
+                    blackjackObj.pushes++;
                 }
             }
             else
             {
-                blackjackGame['pushes']++;
+                blackjackObj.pushes++;
             }
         }
     }
+
     /* else, player 'busted' and loses, if the dealer did not 'bust' too */ 
-    else if (DEALER['score'] <= 21)
+    else if (DEALER.score <= 21)
     {
-        blackjackGame['losses']++;
+        blackjackObj.losses++;
         winner = DEALER;
     }
+
     /* else, both the player AND the dealer busted! */
     else
     {
-        blackjackGame['pushes']++;
+        blackjackObj.pushes++;
     }
 
     return winner;
 
-}
+} /* END function computeWinner() */
 
 function showResult(winner)
 {
     let message, messageColor;
     
-    if (blackjackGame['gameOver'] === true)
+    if (blackjackObj.gameOver === true)
     {
         if (winner === PLAYER)
         {
@@ -456,16 +457,15 @@ function showResult(winner)
             messageColor = 'black';
         }
 
-        document.querySelector('#wins').textContent = blackjackGame['wins'];
-        document.querySelector('#losses').textContent = blackjackGame['losses'];
-        document.querySelector('#pushes').textContent = blackjackGame['pushes'];
+        document.querySelector('#wins').textContent = blackjackObj.wins;
+        document.querySelector('#losses').textContent = blackjackObj.losses;
+        document.querySelector('#pushes').textContent = blackjackObj.pushes;
 
         document.querySelector('#blackjack-result').style.color = messageColor;
         document.querySelector('#blackjack-result').style.fontWeight = 'bold';
         document.querySelector('#blackjack-result').textContent = message;
     }
 }
-
 
 
 
