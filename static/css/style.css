@@ -1,19 +1,24 @@
 .container-1
 {
     border: 1px solid black;
-    width: 75%;
+    width: 85%;
     margin: 0 auto;
     text-align: center;
 }
 
-.container-1 h2
+.container-1 h1
 {
     border: 2px solid black;
     padding: 8px;
     font-size: 40px;
     font-weight: bold;
     margin: 0 auto;
-    /*text-align: center;*/
+}
+
+.container-1 h1 img
+{
+    padding-bottom: 4px;
+    height: 53px;
 }
 
 table, th, td
@@ -25,16 +30,20 @@ table, th, td
 
 th, td
 {
-    width: 45px;
+    width: 60px;
 }
 
-.container-1 h3
+th
+{
+    background-color: rgb(212, 212, 212);
+}
+
+.container-1 h2
 {
     border: 2px solid black;
     padding: 8px;
     font-size: 30px;
     margin: 0 auto;
-    /*text-align: center;*/
 }
 
 .flex-blackjack-row-1, .flex-blackjack-row-2, .flex-blackjack-row-3
@@ -42,8 +51,8 @@ th, td
     display: flex;
     border: 2px solid black;
     padding: 10px;
-    flex-wrap: wrap;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-around;
 }
 
@@ -81,15 +90,25 @@ th, td
     width: 70px;
 }
 
-.verText
+.copyright, .version
 {
     position: absolute;
-    bottom: 1em;
     right: 1em;
     font-size: 9px;
-    text-align:right;
-    vertical-align: bottom;
+    padding-right: 5px;
+    text-align: right;
     color: black;
+}
+
+.copyright
+{
+    bottom: 2em;
+}
+
+
+.version
+{
+    bottom: 1em;
 }
 
 
