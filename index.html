@@ -1,16 +1,31 @@
+<!DOCTYPE html>
 <html lang="en">
+
     <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="static/css/style.css">
+        <meta charset="UTF-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="static/css/style.css"/>
+
         <title>Blackjack</title>
+
+        <!-- Add a favicon to the tab title -->
+        <link rel="icon" type="img/png" href="static/images/bjsasj.png"/>
+
     </head>
+
     <body>
         <div class="container-1">
 
-            <h2 id="">Blackjack</h2>
+            <h1>
+                <span>
+                    <img src="static/images/bjsasj.png" alt="Decorative Ace and Jack of spades image"/>
+                    Blackjack
+                    <img src="static/images/bjsjsa.png" alt="Decorative Jack and Ace of spades image"/>
+                </span>
+            </h1>
 
             <div class="flex-blackjack-row-1">
                 <table style="border: 1px solid black;">
@@ -31,16 +46,16 @@
 
             </div>
 
-            <h3><span id="blackjack-result">Let's play</span></h3>
+            <h2><span id="blackjack-result">Let's play</span></h2>
 
             <div class="flex-blackjack-row-2">
 
-                <div id="your-box">
-                    <h2>You: <span id="your-blackjack-result">0</span></h2>
+                <div id="player-box">
+                    <h2>You: <span id="players-blackjack-score">0</span></h2>
                 </div>
 
                 <div id="dealer-box">
-                    <h2>Dealer: <span id="dealer-blackjack-result">0</span></h2>
+                    <h2>Dealer: <span id="dealers-blackjack-score">0</span></h2>
                 </div>
 
             </div>
@@ -54,12 +69,17 @@
 
             </div>
 
-            <p class="verText"> Version 01.00.00</p>
-            
         </div>
 
         <script src="static/js/script.js"></script>
     
-    </body>
+        <footer>
+            <br/>
+            <p class=copyright>&copy; 2021 Roger Covietz</p>
+            <br/>
+            <p class=version>Version 01.00.01</p>
+        </footer>
+        
+        </body>
     
-    </html>
+</html>
