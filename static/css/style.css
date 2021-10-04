@@ -1,3 +1,4 @@
+
 .container-1
 {
     border: 1px solid black;
@@ -69,11 +70,12 @@ th
     flex: 1;
     height: 350px;
     text-align: center;
+    overflow: auto;
 }
 
 .flex-blackjack-row-2 img
 {
-    width: 25%;
+    height: 40%;
     padding: 10px;
 }
 
@@ -92,23 +94,22 @@ th
 
 .copyright, .version
 {
-    position: absolute;
-    right: 1em;
-    font-size: 9px;
-    padding-right: 5px;
-    text-align: right;
+    margin: 0;
+    position: fixed;
+    right: 1%;
+    font-size: 8px;
     color: black;
 }
 
 .copyright
 {
-    bottom: 2em;
+    bottom: 1em;
 }
 
 
 .version
 {
-    bottom: 1em;
+    bottom: 0;
 }
 
 
