@@ -5,6 +5,7 @@
 // Simple version without betting, just win, lose, or tie.
 //
 // Copyright © 2021 Roger Covietz
+// All Rights Reserved
 //
 
 let blackjackObj =
@@ -38,7 +39,7 @@ let blackjackObj =
     'losses': 0,
     'pushes': 0,
 
-    'playerDone': false,
+    'playerStands': false,
     'holeCardUp': false,
     'gameOver': true,
 };
@@ -77,29 +78,35 @@ function btnDeal()
             dealerImages[i].remove();
         }
 
+        //console.clear();
+
+        while (PLAYER.dealtCards.length > 0)
+        {
+            //console.log('Player cards dealt', PLAYER.dealtCards.length);
+            //console.log('Player cards dealt', PLAYER.dealtCards);
+            PLAYER.dealtCards.shift();
+        }
+
         //console.log('Player cards dealt', PLAYER.dealtCards.length);
-        // for (let i = 0; i < PLAYER.dealtCards.length; i++)
+
+        // while (typeof (j = PLAYER.dealtCards.shift()) !== 'undefined')
         // {
-        //     PLAYER.dealtCards.shift();
+        //     ;//console.log(j);
         // }
 
-        while (typeof (j = PLAYER.dealtCards.shift()) !== 'undefined')
+        while (DEALER.dealtCards.length > 0)
         {
-            ;//console.log(j);
+            //console.log('Dealer cards dealt', DEALER.dealtCards.length);
+            //console.log('Dealer cards dealt', DEALER.dealtCards);
+            DEALER.dealtCards.shift();
         }
-        //console.log('Player cards dealt', PLAYER.dealtCards.length);
 
-        //console.log('Dealer cards dealt', DEALER.dealtCards.length);
-        // for (let i = 0; i < DEALER.dealtCards.length; i++)
+        // console.log('Dealer cards dealt', DEALER['dealtCards'].length);
+
+        // while (typeof (j = DEALER.dealtCards.shift()) !== 'undefined')
         // {
-        //     DEALER.dealtCards.shift();
+        //     ;//console.log(j);
         // }
-
-        while (typeof (j = DEALER.dealtCards.shift()) !== 'undefined')
-        {
-            ;//console.log(j);
-        }
-        //console.log('Dealer cards dealt', DEALER['dealtCards'].length);
 
         blackjackObj.playedCards.fill(0);
         
@@ -119,7 +126,7 @@ function btnDeal()
         document.querySelector('#blackjack-result').style.fontWeight = 'normal';
         document.querySelector('#blackjack-result').textContent = "Let's play";
 
-        blackjackObj.playerDone = false;
+        blackjackObj.playerStands = false;
         blackjackObj.holeCardUp = false,
         blackjackObj.gameOver = false;
 
@@ -134,7 +141,7 @@ function btnHit()
     {
         return;
     }
-    else if (blackjackObj.playerDone === false)
+    else if (blackjackObj.playerStands === false)
     {
         blackjackHit(PLAYER);
     }
@@ -144,7 +151,7 @@ function btnStand()
 {
     if (DEALER.cardCnt >= 2 && blackjackObj.gameOver === false)
     {
-        blackjackObj.playerDone = true;
+        blackjackObj.playerStands = true;
         dealerLogic();
     }
 }
@@ -156,10 +163,10 @@ async function startDeal()
         for (let i = 0; i < 2; i++)
         {
             blackjackHit(PLAYER);
-            await sleep(1000);
+            await sleep(700);
 
             blackjackHit(DEALER);
-            await sleep(1000);
+            await sleep(700);
         }
     }
 }
@@ -167,7 +174,7 @@ async function startDeal()
 function blackjackHit(activePlayer)
 {
     /* no more 'PLAYER' hits after 'standing' */
-    if (activePlayer === PLAYER && blackjackObj.playerDone === true)
+    if (activePlayer === PLAYER && blackjackObj.playerStands === true)
     {
         return;
     }
@@ -268,6 +275,9 @@ function showCard(suit, card, activePlayer)
     {
         let cardImage = document.createElement('img');
 
+        //cardImage.src = `static/images/${suit}${card}.png`;
+        //cardImage.height = 160;
+        //cardImage.style.height = '10%';
         cardImage.src = `static/images/${suit}${card}.png`;
 
         document.querySelector(activePlayer.cardsBox).appendChild(cardImage);
@@ -337,11 +347,11 @@ function showScore(activePlayer)
     ** automatically start the 'DEALER' play-bot if the 'PLAYER'
     ** has a score of 21 (possible blackjack?), or more ('busted')
     */
-    if (blackjackObj.playerDone === false &&
+    if (blackjackObj.playerStands === false &&
         DEALER.cardCnt === 2 &&
         PLAYER.score >= 21)
     {
-        blackjackObj.playerDone = true;
+        blackjackObj.playerStands = true;
         dealerLogic();
     }
 }
@@ -358,7 +368,7 @@ async function dealerLogic()
 
     while (DEALER.score < 17)
     {
-        await sleep(1000);
+        await sleep(700);
         blackjackHit(DEALER);
     }
 
@@ -398,8 +408,7 @@ function computeWinner()
                     blackjackObj.wins++;
                     winner = PLAYER;
                 }
-                else if (DEALER.cardCnt === 2 && PLAYER.cardCnt
-                     > 2)
+                else if (DEALER.cardCnt === 2 && PLAYER.cardCnt > 2)
                 {
                     blackjackObj.losses++;
                     winner = DEALER;
