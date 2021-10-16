@@ -1,5 +1,15 @@
 # Blackjack
 
+*** 21-Oct-16 version 01.00.03 ***
+
+Added volume control slider.
+
+Fixed bug where ocassionally the exact same card(s) would be dealt twice in the same hand.
+Usually this would only occur during hands where many low value cards were pulled from the
+deck. Specifically, on two separate ocassions, two (2) three of diamonds cards were dealt
+to the player when the player had a total of six (6) cards in the hand and the dealer had
+also been dealt five (5) or six (6) low value cards.
+
 *** 21-Oct-02 version 01.00.02 ***
 
 Shortened the delay between drawing cards in automatic 'play-bot' mode for the Dealer.
