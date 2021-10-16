@@ -34,7 +34,7 @@ let blackjackObj =
     'dealer': {'scoreBox': '#dealers-blackjack-score', 'cardsBox': '#dealer-box',
                'cardCnt': 0, 'dealtCards': [], 'score': 0, 'softHand': false},
     
-    /* tally of games played from the 'PLAYER's (Your) perspective */
+    /* tally of played hands from the 'PLAYER's (your) perspective */
     'wins': 0,
     'losses': 0,
     'pushes': 0,
@@ -60,6 +60,7 @@ function sleep(ms)
 {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 
 function btnDeal()
 {
@@ -131,9 +132,11 @@ function btnDeal()
         blackjackObj.gameOver = false;
 
         startDeal();
-    }
+
+    } /* End if (blackjackObj.gameOver === true) */
 
 } /* END function btnDeal() */
+
 
 function btnHit()
 {
@@ -147,6 +150,7 @@ function btnHit()
     }
 }
 
+
 function btnStand()
 {
     if (DEALER.cardCnt >= 2 && blackjackObj.gameOver === false)
@@ -156,6 +160,18 @@ function btnStand()
     }
 }
 
+
+function getRandomNum(limit)
+{
+    var ms = new Date().getMilliseconds();
+
+    ms = Math.floor((ms * (Math.random() * 3.14159)) % limit);
+
+    return (ms);
+
+}
+
+
 async function startDeal()
 {
     if (PLAYER.cardCnt < 2)
@@ -163,23 +179,24 @@ async function startDeal()
         for (let i = 0; i < 2; i++)
         {
             blackjackHit(PLAYER);
-            await sleep(700);
+            await sleep(673);
 
             blackjackHit(DEALER);
-            await sleep(700);
+            await sleep(673);
         }
     }
 }
 
+
 function blackjackHit(activePlayer)
 {
-    /* no more 'PLAYER' hits after 'standing' */
+    /* no more 'PLAYER' hits if after 'PLAYER' is 'standing' */
     if (activePlayer === PLAYER && blackjackObj.playerStands === true)
     {
         return;
     }
 
-    /* get a random (unplayed) card from the deck */
+    /* get a random new (unplayed) card from the deck */
     let result = dealCard();
 
     let suit = result[0];
@@ -188,24 +205,27 @@ function blackjackHit(activePlayer)
     /* save the cards dealt to each player, mainly for dealer's face-down cards */
     activePlayer.dealtCards.push(`${suit}${card}`);
 
+    /*
+    ** The dealer initially deals their first two cards face-down.
+    ** Don't add the value of the dealer's face-down card(s) to the
+    ** dealer's score until they are 'flipped-over'. The dealer's
+    ** first card is 'flipped-over' when the second 'hole-card' is
+    ** dealt. The dealer's 'hole-card' remains face-down until all
+    ** other players have completed their hand.
+    */
     if (activePlayer === DEALER && DEALER.cardCnt < 2)
     {
-        /*
-        ** The dealer flips-over his first card when the (2nd)
-        ** 'hole card' is dealt. The 'hole card' remains face-down
-        ** until all other players have completed their hands.
-        */
         if (DEALER.cardCnt !== 0)
         {
             suit = DEALER.dealtCards[DEALER.cardCnt-1].slice(0, 1);
-            card = DEALER.dealtCards[DEALER.cardCnt-1].slice(1, 3);  /* in case of 10 card need 2-digits */
+            card = DEALER.dealtCards[DEALER.cardCnt-1].slice(1, 3);  /* 3 in case of 10 card need 2-digits */
 
             flipCard(suit, card, DEALER);
         }
 
-        /* The dealer deals the cards face down initially,'cb' is for
-        ** 'card back'. Dealer cards that are face-down do not add to
-        ** the dealer's score until they are 'flipped-over'.
+        /*
+        ** 'cb' stands for 'card back', meaning the card will be
+        ** shown face-down.
         */
         suit = 'c';
         card = 'b';
@@ -215,24 +235,23 @@ function blackjackHit(activePlayer)
         DEALER.cardCnt < 2 ||
         blackjackObj.holeCardUp === true)
     {
-        showCard(suit, card, activePlayer);
-
         activePlayer.cardCnt++;
-
-        updateScore(card, activePlayer);
-        showScore(activePlayer);
+        showCard(suit, card, activePlayer);
     }
 
 } /* END function blackjackHit() */
+
 
 function dealCard()
 {
     let cnt = 0;
     let i;
     
-    while (cnt < 52)
+    /* make sure we don't get stuck forever if all cards have been played */
+    while (cnt < blackjackObj.playedCards.length)
     {
-        i = Math.floor(Math.random() * 52);
+        //i = Math.floor(Math.random() * 52);
+        i = getRandomNum(blackjackObj.playedCards.length);
 
         /*
         ** keep track of cards already played and only
@@ -241,11 +260,10 @@ function dealCard()
         if (blackjackObj.playedCards[i] === 0)
         {
             blackjackObj.playedCards[i] = 1;
+            cnt++;
             break;
         }
 
-        /* make sure we don't get stuck forever if all cards have been played */
-        cnt++;
     }
     
     /* suit is 0-3, Hearts, Clubs, Diamonds, and Spades */
@@ -253,7 +271,7 @@ function dealCard()
 
     /*
     ** cards are 0-12, Ace-King for Hearts and Clubs,
-    ** King-Ace for Diamonds and Spades
+    ** and King-Ace for Diamonds and Spades
     */
     let card = Math.floor(i % 13);
 
@@ -269,37 +287,42 @@ function dealCard()
 
 } /* END function dealCard() */
 
+
 function showCard(suit, card, activePlayer)
 {
     if (activePlayer.score <= 21)
     {
         let cardImage = document.createElement('img');
 
-        //cardImage.src = `static/images/${suit}${card}.png`;
+        cardImage.src = `static/images/${suit}${card}.png`;
         //cardImage.height = 160;
         //cardImage.style.height = '10%';
-        cardImage.src = `static/images/${suit}${card}.png`;
 
         document.querySelector(activePlayer.cardsBox).appendChild(cardImage);
-
+        
+        hitSound.volume = (document.getElementById("sliderVal").value / 100);
         hitSound.play();
+
+        updateScore(card, activePlayer);
     }
 }
+
 
 function flipCard(suit, card, activePlayer)
 {
     let dimg = document.querySelector('#dealer-box').querySelectorAll('img');
 
-    /* replace the previously face-down image with the face-up 'hole-card' */
+    /* replace the image of the face-down card with its face-up image */
     dimg[activePlayer.cardCnt - 1].src = `static/images/${suit}${card}.png`;
 
+    hitSound.volume = (document.getElementById("sliderVal").value / 100);
     hitSound.play();
 
     /* update and show the score after flipping the 'hole-card' face-up */
     updateScore(card, activePlayer);
-    showScore(activePlayer);
 
 }
+
 
 function updateScore(card, activePlayer)
 {
@@ -328,7 +351,11 @@ function updateScore(card, activePlayer)
             activePlayer.score += blackjackObj.cardMap[card][0];
         }
     }
-}
+
+    showScore(activePlayer);
+
+} /* END function updateScore() */
+
 
 function showScore(activePlayer)
 {
@@ -347,20 +374,21 @@ function showScore(activePlayer)
     ** automatically start the 'DEALER' play-bot if the 'PLAYER'
     ** has a score of 21 (possible blackjack?), or more ('busted')
     */
-    if (blackjackObj.playerStands === false &&
-        DEALER.cardCnt === 2 &&
-        PLAYER.score >= 21)
+    if (DEALER.cardCnt === 2 &&
+        PLAYER.score >= 21 &&
+        blackjackObj.playerStands === false)
     {
         blackjackObj.playerStands = true;
         dealerLogic();
     }
 }
 
+
 async function dealerLogic()
 {
     /* flip-over the 'hole card' first, then play out the 'DEALER's hand */
-    let suit = DEALER.dealtCards[1].slice(0, 1);
-    let card = DEALER.dealtCards[1].slice(1, 3); /* in case of 10 card need 2-digits */
+    let suit = DEALER.dealtCards[DEALER.cardCnt-1].slice(0, 1);
+    let card = DEALER.dealtCards[DEALER.cardCnt-1].slice(1, 3); /* 3 in case of 10 card need 2-digits */
     
     flipCard(suit, card, DEALER);
 
@@ -368,7 +396,7 @@ async function dealerLogic()
 
     while (DEALER.score < 17)
     {
-        await sleep(700);
+        await sleep(673);
         blackjackHit(DEALER);
     }
 
@@ -442,6 +470,7 @@ function computeWinner()
 
 } /* END function computeWinner() */
 
+
 function showResult(winner)
 {
     let message, messageColor;
@@ -452,12 +481,14 @@ function showResult(winner)
         {
             message = 'You won!';
             messageColor = 'green';
+            winSound.volume = (document.getElementById("sliderVal").value / 100);
             winSound.play();
         }
         else if (winner === DEALER)
         {
             message = 'You lost!';
             messageColor = 'red';
+            lossSound.volume = (document.getElementById("sliderVal").value / 100);
             lossSound.play();
         }
         else
