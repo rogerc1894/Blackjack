@@ -1,5 +1,11 @@
 # Blackjack
 
+*** 21-Nov-14 version 01.00.04 ***
+
+Added new sounds.
+
+Added numeric display for volume setting.alue cards.
+
 *** 21-Oct-16 version 01.00.03 ***
 
 Added volume control slider.
