@@ -47,13 +47,60 @@ let blackjackObj =
 const PLAYER = blackjackObj.player
 const DEALER = blackjackObj.dealer
 
-const hitSound = new Audio('static/sounds/swish.m4a');
-const winSound = new Audio('static/sounds/cash.mp3');
-const lossSound = new Audio('static/sounds/aww.mp3');
+var volume = document.getElementById("volume").value / 100;
+var mainSoundStart = false;
+
+const mainSound = new Audio('static/sounds/smb_main.mp3'); 
+const dealSound = new Audio('static/sounds/smb_jump-small.wav'); 
+//const hitSound = new Audio('static/sounds/swish.m4a');
+const hitSound = new Audio('static/sounds/smb_bump.wav');
+const winSound = new Audio('static/sounds/smb_powerup.wav');
+const lossSound = new Audio('static/sounds/smb_bowserfalls.wav');
+const blackjackSound = new Audio('static/sounds/smb_flagpole.wav');
+
+document.querySelector('#volume').addEventListener('input', setVolume);
 
 document.querySelector('#blackjack-deal-button').addEventListener('click', btnDeal);
 document.querySelector('#blackjack-hit-button').addEventListener('click', btnHit);
+
 document.querySelector('#blackjack-stand-button').addEventListener('click', btnStand);
+
+//document.getElementById('volume').addEventListener('load', jsStart);
+
+//window.onload = function()
+//{
+//    jsStart(3);
+//};
+
+//document.addEventListener('mousemove', jsStart);
+
+// window.addEventListener("DOMContentLoaded", event => {
+//     const mainSound = document.querySelector('audio');
+//     mainSound.volume = 7;
+//     mainSound.play();
+// });
+  
+// if (typeof mainSound.loop == 'boolean')
+// {
+//     mainSound.loop = true;
+// }
+// else
+// {
+//     mainSound.addEventListener('ended', function() {
+//         this.currentTime = 0;
+//         this.play();
+//     }, false);
+// }
+
+function jsStart()
+{
+    if (false == mainSoundStart)
+    {
+        mainSound.volume = volume / 4;
+        mainSound.play();
+        mainSoundStart = true;
+    }
+}
 
 
 function sleep(ms)
@@ -62,10 +109,39 @@ function sleep(ms)
 }
 
 
-function btnDeal()
+function setVolume()
+{
+    var bubble = document.getElementById('bubble');
+
+    bubble.innerHTML = document.getElementById('volume').value;
+    
+    volume = document.getElementById("volume").value / 100;
+
+    mainSound.volume = volume / 10;
+    dealSound.volume = volume;
+    hitSound.volume = volume;
+    winSound.volume = volume;
+    lossSound.volume = volume;
+    blackjackSound.volume = volume;
+}
+
+
+async function btnDeal()
 {
     if (blackjackObj.gameOver === true)
     {
+        if (false == mainSoundStart)
+        {
+            setVolume();
+            mainSound.play();
+            mainSound.loop = true;
+            await sleep(1000);
+            mainSoundStart = true;
+        }
+
+        dealSound.play();
+        await sleep(400);
+
         let playerImages = document.querySelector('#player-box').querySelectorAll('img');
         let dealerImages = document.querySelector('#dealer-box').querySelectorAll('img');
 
@@ -300,7 +376,6 @@ function showCard(suit, card, activePlayer)
 
         document.querySelector(activePlayer.cardsBox).appendChild(cardImage);
         
-        hitSound.volume = (document.getElementById("sliderVal").value / 100);
         hitSound.play();
 
         updateScore(card, activePlayer);
@@ -315,7 +390,6 @@ function flipCard(suit, card, activePlayer)
     /* replace the image of the face-down card with its face-up image */
     dimg[activePlayer.cardCnt - 1].src = `static/images/${suit}${card}.png`;
 
-    hitSound.volume = (document.getElementById("sliderVal").value / 100);
     hitSound.play();
 
     /* update and show the score after flipping the 'hole-card' face-up */
@@ -481,14 +555,22 @@ function showResult(winner)
         {
             message = 'You won!';
             messageColor = 'green';
-            winSound.volume = (document.getElementById("sliderVal").value / 100);
-            winSound.play();
+
+            if (PLAYER.score !== 21 || PLAYER.cardCnt > 2)
+            {
+                winSound.play();
+            }
+            else
+            {
+                blackjackSound.play();
+            }
+
         }
         else if (winner === DEALER)
         {
             message = 'You lost!';
             messageColor = 'red';
-            lossSound.volume = (document.getElementById("sliderVal").value / 100);
+
             lossSound.play();
         }
         else
